@@ -1,20 +1,18 @@
 syntax = "proto3";
+
 option go_package = "github.com/example/path/gen;gen";
 
 package service;
 
 
 service Countries {
-
-    // запрос на получение списка стран
     rpc List(Request.Country.List) returns (Response.Country.List) {}
-    
-    // запрос на лайк или дислайк конкретной страны с возможностью потоковой отсылки новых лайков 
-    // и дислайков для разных стран
-    rpc LikeDislike(stream Request.Country.LikeDislike) returns (Response.Country.Single) {}
-    
-    // запрос на потоковое получение текущей страны
+
     rpc Single(Request.Country.Single) returns (stream Response.Country.Single) {}
+
+    rpc Like(Request.Country.Like) returns (Response.Country.Single) {}
+
+    rpc Dislike(Request.Country.Dislike) returns (Response.Country.Single) {}
 }
  
 
@@ -22,14 +20,12 @@ message Response {
 
     message Country {
     
-        // данные по одной стране
         message Single {
             uint32 id = 1; 
             string name = 2; 
             int32 likes = 3; 
         }
         
-        // данные по нескольким странам
         message List {
             repeated Response.Country.Single countries = 1;
         }
@@ -39,10 +35,12 @@ message Response {
 message Request {
 
     message Country {
+        message Single {
+            uint32 id = 1; 
+        }
     
-        // параметры запроса списка стран
         message List {
-            uint32 offset = 1;  // отступ в количестве стран, с которого необходимо начать возвращать результат
+            uint32 offset = 1; 
             uint32 limit = 2; 
         }
        
@@ -55,15 +53,10 @@ message Request {
         }
         
         message LikeDislike {
-            oneof action {  // лайк или дислайк
+            oneof action { 
                 Like like = 1;
                 Dislike dislike = 2;
             }
-        }
-
-        // данные по одной стране
-        message Single {
-            uint32 id = 1; 
         }
     }
 }
